@@ -1,11 +1,21 @@
 package main
 
 import (
+	"log"
+	"os"
+
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func main() {
-    // Membuat Gin Engine
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalln("failed to load env file")
+	}
+	port := os.Getenv("PORT")
+
+	// Membuat Gin Engine
     r := gin.Default()
 
     // Membuat route "/helloworld"
@@ -15,5 +25,5 @@ func main() {
     })
 
     // Menjalankan Gin Engine
-    r.Run("localhost:8080")
+    r.Run(":" + port)
 }
