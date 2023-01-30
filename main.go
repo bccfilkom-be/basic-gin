@@ -16,14 +16,14 @@ func main() {
 	port := os.Getenv("PORT")
 
 	// Membuat Gin Engine
-    r := gin.Default()
+	r := gin.Default()
 
-    // Membuat route "/helloworld"
-    r.GET("/helloworld", func(c *gin.Context) {
-        // Mengirimkan string "hello world" sebagai response
-        c.String(200, "hello world")
-    })
+	// Membuat route "/helloworld"
+	r.GET("/helloworld", func(c *gin.Context) {
+		// Mengirimkan string "hello world" sebagai response
+		c.String(200, "hello world")
+	})
 
-    // Menjalankan Gin Engine
-    r.Run(":" + port)
+	// Menjalankan Gin Engine
+	r.Run(":" + port)
 }
