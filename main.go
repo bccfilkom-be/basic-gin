@@ -17,7 +17,12 @@ func main() {
 	port := os.Getenv("PORT")
 
 	// Initialize database connection
-	_ = database.InitDB()
+	db := database.InitDB()
+
+	// Auto migrate entities 
+	if err := database.AutoMigrate(db); err != nil {
+		log.Fatalln("auto migrate error,", err)
+	}
 
 	// Membuat Gin Engine
 	r := gin.Default()

@@ -1,6 +1,7 @@
 package database
 
 import (
+	"basic-gin/entity"
 	"fmt"
 	"log"
 	"os"
@@ -25,4 +26,12 @@ func InitDB() *gorm.DB {
 		log.Fatal("init db failed,", err)
 	}
 	return db
+}
+
+// NOTE: jangan lupa setiap buat entitas, masukkan entitas tsb
+// ke dalam fungsi ini biar auto migrasi
+func AutoMigrate(db *gorm.DB) error{
+	return db.AutoMigrate(
+		&entity.Post{},
+	) //masukkan object yg mau dimigrasi ke dlm parameter ini (variadic)
 }
