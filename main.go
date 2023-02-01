@@ -2,6 +2,7 @@ package main
 
 import (
 	"basic-gin/database"
+	"basic-gin/handler"
 	"log"
 	"os"
 
@@ -26,12 +27,16 @@ func main() {
 
 	// Membuat Gin Engine
 	r := gin.Default()
+	
+	// HANDLERS
+	postHandler := handler.NewPostHandler(db)
 
-	// Membuat route "/helloworld"
+	// ROUTES
 	r.GET("/helloworld", func(c *gin.Context) {
 		// Mengirimkan string "hello world" sebagai response
 		c.String(200, "hello world")
 	})
+	r.POST("/create-post", postHandler.CreatePost)
 
 	// Menjalankan Gin Engine
 	r.Run(":" + port)
