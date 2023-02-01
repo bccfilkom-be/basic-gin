@@ -52,3 +52,34 @@ func (h *postHandler) CreatePost(c *gin.Context){
 		 request,
 	))
 }
+
+func (h *postHandler) GetPostByID(c *gin.Context){
+	// binding param to request model
+	request := model.GetPostByIDRequest{}
+	if err := c.ShouldBindUri(&request); err != nil {
+		code := http.StatusBadRequest
+		c.JSON(code, response.FailOrError(
+			code, "Get post failed",
+			map[string]interface{}{
+				"error" : err.Error(),
+			},
+		))
+		return
+	}
+
+	// find post
+	post, err := h.Repository.GetPostByID(h.DB, request.ID)
+	if  err != nil {
+		code := http.StatusNotFound
+		c.JSON(code, response.FailOrError(
+			code, "Post not found",
+			map[string]interface{}{
+				"error" : "404 not found",
+			},
+		))
+		return
+	}
+
+	//success
+	c.JSON(http.StatusOK, response.Success("Post found", post))
+}

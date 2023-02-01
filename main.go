@@ -37,6 +37,7 @@ func main() {
 		c.String(200, "hello world")
 	})
 	r.POST("/create-post", postHandler.CreatePost)
+	r.GET("/get-post/:id", postHandler.GetPostByID)
 
 	// Menjalankan Gin Engine
 	r.Run(":" + port)
