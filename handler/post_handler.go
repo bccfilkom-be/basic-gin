@@ -6,6 +6,7 @@ import (
 	"basic-gin/repository"
 	"basic-gin/sdk/response"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -82,4 +83,88 @@ func (h *postHandler) GetPostByID(c *gin.Context){
 
 	//success
 	c.JSON(http.StatusOK, response.Success("Post found", post))
+}
+
+func (h *postHandler) GetAllPost(c *gin.Context) {
+	posts, err := h.Repository.GetAllPost(h.DB)
+
+	if  err != nil {
+		code := http.StatusNotFound
+		c.JSON(code, response.FailOrError(
+			code, "Posts not found",
+			map[string]interface{}{
+				"error" : "404 not found",
+			},
+		))
+		return
+	}
+
+	c.JSON(http.StatusOK, response.Success("Posts Found", posts))
+}
+
+func (h *postHandler) UpdatePostByID(c *gin.Context) {
+	ID := c.Param("id")
+
+	// fmt.Println(notExist)
+	// if notExist {
+	// 	code := http.StatusBadRequest
+
+	// 	c.JSON(code, response.FailOrError(
+	// 		code, "id is not supplied",
+	// 		map[string]interface{}{
+	// 			"error": nil,
+	// 		},
+	// 	))
+	// 	return
+	// }
+
+	var request model.UpdatePostRequest
+
+	if err := c.ShouldBindJSON(&request); err != nil {
+		code := http.StatusBadRequest
+		c.JSON(code, response.FailOrError(
+			code, "body is invalid ..",
+			map[string]interface{}{
+				"error" : err.Error(),
+			},
+		)) 
+		return
+	}
+
+	parsedID, _ := strconv.ParseUint(ID, 10, 64)
+
+	request = model.UpdatePostRequest{
+		Title: request.Title,
+		Content: request.Content,
+	}
+
+	err := h.Repository.UpdatePost(h.DB, uint(parsedID), &request)
+	if err != nil {
+		code := http.StatusInternalServerError
+		c.JSON(code, response.FailOrError(code, "Update post failed", nil))
+		return
+	}
+
+	var post entity.Post
+
+	post, err = h.Repository.GetPostByID(h.DB, uint(parsedID))
+	if  err != nil {
+		code := http.StatusNotFound
+		c.JSON(code, response.FailOrError(
+			code, "Post not found",
+			map[string]interface{}{
+				"error" : "404 not found",
+			},
+		))
+		return
+	}
+
+	//success
+	c.JSON(http.StatusOK, response.Success("Post found", post))
+
+	//success response
+	// c.JSON(http.StatusCreated, response.Success(
+	// 	"Post creation succeeded",
+	// 	 request,
+	// ))
 }

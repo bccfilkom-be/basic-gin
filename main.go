@@ -38,6 +38,8 @@ func main() {
 	})
 	r.POST("/create-post", postHandler.CreatePost)
 	r.GET("/get-post/:id", postHandler.GetPostByID)
+	r.GET("/posts", postHandler.GetAllPost)
+	r.PATCH("/post/:id", postHandler.UpdatePostByID)
 
 	// Menjalankan Gin Engine
 	r.Run(":" + port)
