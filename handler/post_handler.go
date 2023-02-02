@@ -27,8 +27,7 @@ func (h *postHandler) CreatePost(c *gin.Context){
 	if err := c.ShouldBindJSON(&request); err != nil {
 		code := http.StatusBadRequest
 		c.JSON(code, response.FailOrError(
-			code, "Create post failed",
-			map[string]interface{}{
+			code, "Create post failed", gin.H{
 				"error" : err.Error(),
 			},
 		)) 
@@ -60,8 +59,7 @@ func (h *postHandler) GetPostByID(c *gin.Context){
 	if err := c.ShouldBindUri(&request); err != nil {
 		code := http.StatusBadRequest
 		c.JSON(code, response.FailOrError(
-			code, "Get post failed",
-			map[string]interface{}{
+			code, "Get post failed", gin.H{
 				"error" : err.Error(),
 			},
 		))
@@ -73,8 +71,7 @@ func (h *postHandler) GetPostByID(c *gin.Context){
 	if  err != nil {
 		code := http.StatusNotFound
 		c.JSON(code, response.FailOrError(
-			code, "Post not found",
-			map[string]interface{}{
+			code, "Post not found", gin.H{
 				"error" : "404 not found",
 			},
 		))
