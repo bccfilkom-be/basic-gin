@@ -34,3 +34,11 @@ func (r *PostRepository) UpdatePost(db *gorm.DB, ID uint, updatePost *model.Upda
 
 	return err
 }
+
+func (r *PostRepository) DeletePost(db *gorm.DB, ID uint) error {
+	var post entity.Post
+
+	err := db.Delete(&post, ID).Error
+
+	return err
+}

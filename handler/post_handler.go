@@ -88,8 +88,7 @@ func (h *postHandler) GetAllPost(c *gin.Context) {
 	if  err != nil {
 		code := http.StatusNotFound
 		c.JSON(code, response.FailOrError(
-			code, "Posts not found",
-			map[string]interface{}{
+			code, "Posts not found", gin.H{
 				"error" : "404 not found",
 			},
 		))
@@ -102,26 +101,12 @@ func (h *postHandler) GetAllPost(c *gin.Context) {
 func (h *postHandler) UpdatePostByID(c *gin.Context) {
 	ID := c.Param("id")
 
-	// fmt.Println(notExist)
-	// if notExist {
-	// 	code := http.StatusBadRequest
-
-	// 	c.JSON(code, response.FailOrError(
-	// 		code, "id is not supplied",
-	// 		map[string]interface{}{
-	// 			"error": nil,
-	// 		},
-	// 	))
-	// 	return
-	// }
-
 	var request model.UpdatePostRequest
 
 	if err := c.ShouldBindJSON(&request); err != nil {
 		code := http.StatusBadRequest
 		c.JSON(code, response.FailOrError(
-			code, "body is invalid ..",
-			map[string]interface{}{
+			code, "body is invalid ..", gin.H{
 				"error" : err.Error(),
 			},
 		)) 
@@ -148,8 +133,7 @@ func (h *postHandler) UpdatePostByID(c *gin.Context) {
 	if  err != nil {
 		code := http.StatusNotFound
 		c.JSON(code, response.FailOrError(
-			code, "Post not found",
-			map[string]interface{}{
+			code, "Post not found", gin.H{
 				"error" : "404 not found",
 			},
 		))
@@ -157,11 +141,21 @@ func (h *postHandler) UpdatePostByID(c *gin.Context) {
 	}
 
 	//success
-	c.JSON(http.StatusOK, response.Success("Post found", post))
+	c.JSON(http.StatusOK, response.Success("updated post successfully", post))
+}
 
-	//success response
-	// c.JSON(http.StatusCreated, response.Success(
-	// 	"Post creation succeeded",
-	// 	 request,
-	// ))
+func (h *postHandler) DeletePostByID(c *gin.Context) {
+	ID := c.Param("id")
+
+	parsedID, _ := strconv.ParseUint(ID, 10, 64)
+
+	err := h.Repository.DeletePost(h.DB, uint(parsedID))
+
+	if err != nil {
+		code := http.StatusInternalServerError
+		c.JSON(code, response.FailOrError(code, "delete post failed", nil))
+		return
+	}
+
+	c.JSON(http.StatusOK, response.Success("successfully deleted post", nil))
 }

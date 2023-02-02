@@ -40,6 +40,7 @@ func main() {
 	r.GET("/get-post/:id", postHandler.GetPostByID)
 	r.GET("/posts", postHandler.GetAllPost)
 	r.PATCH("/post/:id", postHandler.UpdatePostByID)
+	r.DELETE("/post/:id", postHandler.DeletePostByID)
 
 	// Menjalankan Gin Engine
 	r.Run(":" + port)
