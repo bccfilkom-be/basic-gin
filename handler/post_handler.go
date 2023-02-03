@@ -25,7 +25,7 @@ func (h *postHandler) CreatePost(c *gin.Context){
 	// bind incoming http request
 	request := model.CreatePostRequest{}
 	if err := c.ShouldBindJSON(&request); err != nil {
-		code := http.StatusBadRequest
+		code := http.StatusUnprocessableEntity
 		c.JSON(code, response.FailOrError(
 			code, "Create post failed", gin.H{
 				"error" : err.Error(),

@@ -25,7 +25,7 @@ func (h *commentHandler) CreateNewComment(c *gin.Context) {
 	// bind incoming http request
 	var requestComment model.CreateNewComment
 	if err := c.ShouldBindJSON(&requestComment); err != nil {
-		code := http.StatusBadRequest
+		code := http.StatusUnprocessableEntity
 		c.JSON(code, response.FailOrError(
 			code, "format body invalid ", gin.H{
 				"error": err.Error(),
