@@ -45,6 +45,7 @@ func main() {
 
 	r.POST("/comment", commentHandler.CreateNewComment)
 	r.GET("/comment/:id", commentHandler.GetCommentByID)
+	r.GET("/comment", commentHandler.GetCommentByTitleQuery)
 
 	// Menjalankan Gin Engine
 	r.Run(":" + port)

@@ -75,7 +75,23 @@ func (h *commentHandler) GetCommentByID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, response.Success(
+	c.JSON(http.StatusOK, response.Success(
 		"comment found", comment,
+	))
+}
+
+func (h *commentHandler) GetCommentByTitleQuery(c *gin.Context) {
+	query := c.Query("comment")
+
+	comments, err := h.Repository.GetCommentByTitleQuery(h.DB, query)
+
+	if err != nil {
+		code := http.StatusNotFound
+		c.JSON(code, response.FailOrError(code, "comment not found", nil))
+		return
+	}
+
+	c.JSON(http.StatusOK, response.Success(
+		"comment found", comments,
 	))
 }
