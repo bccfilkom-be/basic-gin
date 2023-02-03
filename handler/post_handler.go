@@ -127,9 +127,7 @@ func (h *postHandler) UpdatePostByID(c *gin.Context) {
 		return
 	}
 
-	var post entity.Post
-
-	post, err = h.Repository.GetPostByID(h.DB, uint(parsedID))
+	post, err := h.Repository.GetPostByID(h.DB, uint(parsedID))
 	if  err != nil {
 		code := http.StatusNotFound
 		c.JSON(code, response.FailOrError(

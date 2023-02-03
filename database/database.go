@@ -33,5 +33,7 @@ func InitDB() *gorm.DB {
 func AutoMigrate(db *gorm.DB) error{
 	return db.AutoMigrate(
 		&entity.Post{},
+		// &entity.User{},
+		&entity.Comment{},
 	) //masukkan object yg mau dimigrasi ke dlm parameter ini (variadic)
 }

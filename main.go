@@ -30,6 +30,7 @@ func main() {
 	
 	// HANDLERS
 	postHandler := handler.NewPostHandler(db)
+	commentHandler := handler.NewCommentHandler(db)
 
 	// ROUTES
 	r.GET("/helloworld", func(c *gin.Context) {
@@ -41,6 +42,9 @@ func main() {
 	r.GET("/posts", postHandler.GetAllPost)
 	r.PATCH("/post/:id", postHandler.UpdatePostByID)
 	r.DELETE("/post/:id", postHandler.DeletePostByID)
+
+	r.POST("/comment", commentHandler.CreateNewComment)
+	r.GET("/comment/:id", commentHandler.GetCommentByID)
 
 	// Menjalankan Gin Engine
 	r.Run(":" + port)

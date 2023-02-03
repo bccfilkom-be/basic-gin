@@ -18,10 +18,5 @@ type Post struct {
 	Title   string `gorm:"type:VARCHAR(100);NOT NULL" json:"title"`
 	Content string `gorm:"type:LONGTEXT;NOT NULL" json:"content"`
 	// UserID uint `json:"user_id"`
-}
-
-type User struct {
-	gorm.Model
-	Username string `gorm:"type:VARCHAR(50); NOT NULL"`
-	Posts[] Post `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"posts"`
+	Comments []Comment `json:"comments"`
 }
