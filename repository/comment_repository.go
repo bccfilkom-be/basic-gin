@@ -54,3 +54,33 @@ func (r *CommentRepository) GetCommentByTitleQuery(db *gorm.DB, comm string) (*[
 	return &comment, nil
 }
 
+func (r *CommentRepository) UpdateCommentByID(db *gorm.DB, ID uint, updateComment *entity.Comment) error {
+	var comment entity.Comment
+
+	result := db.Model(&comment).Where("ID = ?", ID).Updates(updateComment)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return errors.New("no rows affected, failed to update comment")
+	}
+
+	return nil
+}
+
+func (r *CommentRepository) DeleteCommentByID(db *gorm.DB, ID uint) error {
+	var comment entity.Comment
+
+	result := db.Delete(&comment, ID)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return errors.New("no rows affected, missing comment or abnormal behaviour happen")
+	}
+	return nil
+}

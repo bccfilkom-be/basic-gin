@@ -46,6 +46,8 @@ func main() {
 	r.POST("/comment", commentHandler.CreateNewComment)
 	r.GET("/comment/:id", commentHandler.GetCommentByID)
 	r.GET("/comment", commentHandler.GetCommentByTitleQuery)
+	r.PATCH("/comment/:id", commentHandler.UpdateCommentByID)
+	r.DELETE("/comment/:id", commentHandler.DeleteCommentByID)
 
 	// Menjalankan Gin Engine
 	r.Run(":" + port)

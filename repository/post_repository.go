@@ -15,7 +15,9 @@ func (r *PostRepository) CreatePost(db *gorm.DB, post *entity.Post) error {
 
 func (r *PostRepository) GetPostByID(db *gorm.DB, id uint) (entity.Post, error) {
 	post := entity.Post{}
+
 	err := db.Preload("Comments").First(&post, id).Error
+	
 	return post, err
 }
 
