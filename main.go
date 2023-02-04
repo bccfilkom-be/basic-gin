@@ -37,8 +37,8 @@ func main() {
 		// Mengirimkan string "hello world" sebagai response
 		c.String(200, "hello world")
 	})
-	r.POST("/create-post", postHandler.CreatePost)
-	r.GET("/get-post/:id", postHandler.GetPostByID)
+	r.POST("/post", postHandler.CreatePost)
+	r.GET("/post/:id", postHandler.GetPostByID)
 	r.GET("/posts", postHandler.GetAllPost)
 	r.PATCH("/post/:id", postHandler.UpdatePostByID)
 	r.DELETE("/post/:id", postHandler.DeletePostByID)
