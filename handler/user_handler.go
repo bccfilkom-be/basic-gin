@@ -46,7 +46,7 @@ func (h *userHandler) LoginUser(c *gin.Context) {
 	}
 	result, err := h.Repository.LoginUser(h.db, user)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, response.FailOrError(http.StatusInternalServerError, err.Error(), nil))
+		c.JSON(http.StatusInternalServerError, response.FailOrError(http.StatusInternalServerError, err.Error(), nil))
 		return
 	}
 	c.JSON(http.StatusOK, result)
