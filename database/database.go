@@ -30,10 +30,10 @@ func InitDB() *gorm.DB {
 
 // NOTE: jangan lupa setiap buat entitas, masukkan entitas tsb
 // ke dalam fungsi ini biar auto migrasi
-func AutoMigrate(db *gorm.DB) error{
+func AutoMigrate(db *gorm.DB) error {
 	return db.AutoMigrate(
+		&entity.User{},
 		&entity.Post{},
-		// &entity.User{},
 		&entity.Comment{},
 	) //masukkan object yg mau dimigrasi ke dlm parameter ini (variadic)
 }
