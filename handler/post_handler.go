@@ -13,30 +13,31 @@ import (
 )
 
 type postHandler struct {
-	DB *gorm.DB
+	DB         *gorm.DB
 	Repository repository.PostRepository
 }
+
 // "Constructor" for postHandler
-func NewPostHandler(db *gorm.DB) postHandler{
+func NewPostHandler(db *gorm.DB) postHandler {
 	return postHandler{db, repository.PostRepository{}}
 }
 
-func (h *postHandler) CreatePost(c *gin.Context){
+func (h *postHandler) CreatePost(c *gin.Context) {
 	// bind incoming http request
 	request := model.CreatePostRequest{}
 	if err := c.ShouldBindJSON(&request); err != nil {
 		code := http.StatusUnprocessableEntity
 		c.JSON(code, response.FailOrError(
 			code, "Create post failed", gin.H{
-				"error" : err.Error(),
+				"error": err.Error(),
 			},
-		)) 
+		))
 		return
 	}
 
 	// create post
 	post := entity.Post{
-		Title: request.Title,
+		Title:   request.Title,
 		Content: request.Content,
 	}
 	err := h.Repository.CreatePost(h.DB, &post)
@@ -49,18 +50,18 @@ func (h *postHandler) CreatePost(c *gin.Context){
 	//success response
 	c.JSON(http.StatusCreated, response.Success(
 		"Post creation succeeded",
-		 request,
+		request,
 	))
 }
 
-func (h *postHandler) GetPostByID(c *gin.Context){
+func (h *postHandler) GetPostByID(c *gin.Context) {
 	// binding param to request model
 	request := model.GetPostByIDRequest{}
 	if err := c.ShouldBindUri(&request); err != nil {
 		code := http.StatusBadRequest
 		c.JSON(code, response.FailOrError(
 			code, "Get post failed", gin.H{
-				"error" : err.Error(),
+				"error": err.Error(),
 			},
 		))
 		return
@@ -68,11 +69,11 @@ func (h *postHandler) GetPostByID(c *gin.Context){
 
 	// find post
 	post, err := h.Repository.GetPostByID(h.DB, request.ID)
-	if  err != nil {
+	if err != nil {
 		code := http.StatusNotFound
 		c.JSON(code, response.FailOrError(
 			code, "Post not found", gin.H{
-				"error" : "404 not found",
+				"error": "404 not found",
 			},
 		))
 		return
@@ -85,11 +86,11 @@ func (h *postHandler) GetPostByID(c *gin.Context){
 func (h *postHandler) GetAllPost(c *gin.Context) {
 	posts, err := h.Repository.GetAllPost(h.DB)
 
-	if  err != nil {
+	if err != nil {
 		code := http.StatusNotFound
 		c.JSON(code, response.FailOrError(
 			code, "Posts not found", gin.H{
-				"error" : "404 not found",
+				"error": "404 not found",
 			},
 		))
 		return
@@ -107,16 +108,16 @@ func (h *postHandler) UpdatePostByID(c *gin.Context) {
 		code := http.StatusBadRequest
 		c.JSON(code, response.FailOrError(
 			code, "body is invalid ..", gin.H{
-				"error" : err.Error(),
+				"error": err.Error(),
 			},
-		)) 
+		))
 		return
 	}
 
 	parsedID, _ := strconv.ParseUint(ID, 10, 64)
 
 	request = model.UpdatePostRequest{
-		Title: request.Title,
+		Title:   request.Title,
 		Content: request.Content,
 	}
 
@@ -128,11 +129,11 @@ func (h *postHandler) UpdatePostByID(c *gin.Context) {
 	}
 
 	post, err := h.Repository.GetPostByID(h.DB, uint(parsedID))
-	if  err != nil {
+	if err != nil {
 		code := http.StatusNotFound
 		c.JSON(code, response.FailOrError(
 			code, "Post not found", gin.H{
-				"error" : "404 not found",
+				"error": "404 not found",
 			},
 		))
 		return
