@@ -24,12 +24,16 @@ func (h *userHandler) CreateUser(c *gin.Context) {
 	var user model.RegisterUser
 	err := c.ShouldBindJSON(&user)
 	if err != nil {
-		response.FailOrError(http.StatusBadRequest, err.Error(), nil)
+		code := http.StatusBadRequest
+		resp := response.FailOrError(http.StatusBadRequest, err.Error(), nil)
+		c.JSON(code, resp)
 		return
 	}
 	result, err := h.Repository.CreateUser(user)
 	if err != nil {
-		response.FailOrError(http.StatusInternalServerError, err.Error(), nil)
+		code := http.StatusBadRequest
+		resp := response.FailOrError(http.StatusInternalServerError, err.Error(), nil)
+		c.JSON(code, resp)
 		return
 	}
 	c.JSON(http.StatusCreated, response.Success("success create user", result))
