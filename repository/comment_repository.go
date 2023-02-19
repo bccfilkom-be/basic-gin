@@ -7,10 +7,12 @@ import (
 	"gorm.io/gorm"
 )
 
-type CommentRepository struct{}
+type CommentRepository struct{
+	db         *gorm.DB
+}
 
-func (r *CommentRepository) CreateComment(db *gorm.DB, comment *entity.Comment) error {
-	res := db.Create(comment)
+func (r *CommentRepository) CreateComment(comment *entity.Comment) error {
+	res := r.db.Create(comment)
 
 	if res.Error != nil {
 		return res.Error
@@ -23,10 +25,10 @@ func (r *CommentRepository) CreateComment(db *gorm.DB, comment *entity.Comment) 
 	return nil
 }
 
-func (r *CommentRepository) GetCommentByID(db *gorm.DB, ID uint) (*entity.Comment, error) {
+func (r *CommentRepository) GetCommentByID(ID uint) (*entity.Comment, error) {
 	var comment entity.Comment
 
-	result := db.First(&comment, ID)
+	result := r.db.First(&comment, ID)
 
 	if result.Error != nil {
 		return nil, result.Error
@@ -35,12 +37,12 @@ func (r *CommentRepository) GetCommentByID(db *gorm.DB, ID uint) (*entity.Commen
 	return &comment, nil
 }
 
-func (r *CommentRepository) GetCommentByTitleQuery(db *gorm.DB, comm string) (*[]entity.Comment, error) {
+func (r *CommentRepository) GetCommentByTitleQuery(comm string) (*[]entity.Comment, error) {
 	var comment[] entity.Comment
 
 	search := "%" + comm + "%"
 
-	result := db.Model(&comment).Where("comment like ?", search).Find(&comment)
+	result := r.db.Model(&comment).Where("comment like ?", search).Find(&comment)
 
 	if result.Error != nil {
 		return nil, result.Error
@@ -54,10 +56,10 @@ func (r *CommentRepository) GetCommentByTitleQuery(db *gorm.DB, comm string) (*[
 	return &comment, nil
 }
 
-func (r *CommentRepository) UpdateCommentByID(db *gorm.DB, ID uint, updateComment *entity.Comment) error {
+func (r *CommentRepository) UpdateCommentByID( ID uint, updateComment *entity.Comment) error {
 	var comment entity.Comment
 
-	result := db.Model(&comment).Where("ID = ?", ID).Updates(updateComment)
+	result := r.db.Model(&comment).Where("ID = ?", ID).Updates(updateComment)
 
 	if result.Error != nil {
 		return result.Error
@@ -70,10 +72,10 @@ func (r *CommentRepository) UpdateCommentByID(db *gorm.DB, ID uint, updateCommen
 	return nil
 }
 
-func (r *CommentRepository) DeleteCommentByID(db *gorm.DB, ID uint) error {
+func (r *CommentRepository) DeleteCommentByID( ID uint) error {
 	var comment entity.Comment
 
-	result := db.Delete(&comment, ID)
+	result := r.db.Delete(&comment, ID)
 
 	if result.Error != nil {
 		return result.Error

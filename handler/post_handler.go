@@ -40,7 +40,7 @@ func (h *postHandler) CreatePost(c *gin.Context) {
 		Title:   request.Title,
 		Content: request.Content,
 	}
-	err := h.Repository.CreatePost(h.DB, &post)
+	err := h.Repository.CreatePost(&post)
 	if err != nil {
 		code := http.StatusInternalServerError
 		c.JSON(code, response.FailOrError(code, "Create post failed", nil))
@@ -68,7 +68,7 @@ func (h *postHandler) GetPostByID(c *gin.Context) {
 	}
 
 	// find post
-	post, err := h.Repository.GetPostByID(h.DB, request.ID)
+	post, err := h.Repository.GetPostByID(request.ID)
 	if err != nil {
 		code := http.StatusNotFound
 		c.JSON(code, response.FailOrError(
@@ -121,14 +121,14 @@ func (h *postHandler) UpdatePostByID(c *gin.Context) {
 		Content: request.Content,
 	}
 
-	err := h.Repository.UpdatePost(h.DB, uint(parsedID), &request)
+	err := h.Repository.UpdatePost(uint(parsedID), &request)
 	if err != nil {
 		code := http.StatusInternalServerError
 		c.JSON(code, response.FailOrError(code, "Update post failed", nil))
 		return
 	}
 
-	post, err := h.Repository.GetPostByID(h.DB, uint(parsedID))
+	post, err := h.Repository.GetPostByID(uint(parsedID))
 	if err != nil {
 		code := http.StatusNotFound
 		c.JSON(code, response.FailOrError(
@@ -148,7 +148,7 @@ func (h *postHandler) DeletePostByID(c *gin.Context) {
 
 	parsedID, _ := strconv.ParseUint(ID, 10, 64)
 
-	err := h.Repository.DeletePost(h.DB, uint(parsedID))
+	err := h.Repository.DeletePost(uint(parsedID))
 
 	if err != nil {
 		code := http.StatusInternalServerError

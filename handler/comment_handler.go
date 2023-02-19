@@ -39,7 +39,7 @@ func (h *commentHandler) CreateNewComment(c *gin.Context) {
 		Comment: requestComment.Comment,
 		PostID: requestComment.PostID,
 	}
-	err := h.Repository.CreateComment(h.DB, &newComment)
+	err := h.Repository.CreateComment(&newComment)
 	if err != nil {
 		code := http.StatusInternalServerError
 		c.JSON(code, response.FailOrError(code, "create comment failed", nil))
@@ -67,7 +67,7 @@ func (h *commentHandler) GetCommentByID(c *gin.Context) {
 		return
 	}
 
-	comment, err := h.Repository.GetCommentByID(h.DB, uint(parsedID))
+	comment, err := h.Repository.GetCommentByID(uint(parsedID))
 
 	if err != nil {
 		code := http.StatusNotFound
@@ -83,7 +83,7 @@ func (h *commentHandler) GetCommentByID(c *gin.Context) {
 func (h *commentHandler) GetCommentByTitleQuery(c *gin.Context) {
 	query := c.Query("comment")
 
-	comments, err := h.Repository.GetCommentByTitleQuery(h.DB, query)
+	comments, err := h.Repository.GetCommentByTitleQuery(query)
 
 	if err != nil {
 		code := http.StatusNotFound
@@ -123,7 +123,7 @@ func (h *commentHandler) UpdateCommentByID(c *gin.Context) {
 		return
 	}
 
-	err = h.Repository.UpdateCommentByID(h.DB, uint(parsedID), &request)
+	err = h.Repository.UpdateCommentByID(uint(parsedID), &request)
 
 	if err != nil {
 		code := http.StatusInternalServerError
@@ -131,7 +131,7 @@ func (h *commentHandler) UpdateCommentByID(c *gin.Context) {
 		return
 	}
 
-	comment, err := h.Repository.GetCommentByID(h.DB, uint(parsedID))
+	comment, err := h.Repository.GetCommentByID(uint(parsedID))
 
 	if err != nil {
 		code := http.StatusNotFound
@@ -159,7 +159,7 @@ func (h *commentHandler) DeleteCommentByID(c *gin.Context) {
 		return
 	}
 
-	err = h.Repository.DeleteCommentByID(h.DB, uint(parsedID))
+	err = h.Repository.DeleteCommentByID(uint(parsedID))
 
 	if err != nil {
 		code := http.StatusInternalServerError

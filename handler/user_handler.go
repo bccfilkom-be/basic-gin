@@ -11,13 +11,11 @@ import (
 )
 
 type userHandler struct {
-	db         *gorm.DB
 	Repository repository.UserRepository
 }
 
 func NewUserHandler(db *gorm.DB) *userHandler {
 	return &userHandler{
-		db:         db,
 		Repository: repository.UserRepository{},
 	}
 }
@@ -29,7 +27,7 @@ func (h *userHandler) CreateUser(c *gin.Context) {
 		response.FailOrError(http.StatusBadRequest, err.Error(), nil)
 		return
 	}
-	result, err := h.Repository.CreateUser(h.db, user)
+	result, err := h.Repository.CreateUser(user)
 	if err != nil {
 		response.FailOrError(http.StatusInternalServerError, err.Error(), nil)
 		return
@@ -41,10 +39,13 @@ func (h *userHandler) LoginUser(c *gin.Context) {
 	var user model.LoginUser
 	err := c.ShouldBindJSON(&user)
 	if err != nil {
-		response.FailOrError(http.StatusBadRequest, err.Error(), nil)
+		c.JSON(http.StatusBadRequest, response.FailOrError(
+			http.StatusBadRequest, "bad request", gin.H{
+			"error" : err.Error(),
+		}))
 		return
 	}
-	result, err := h.Repository.LoginUser(h.db, user)
+	result, err := h.Repository.LoginUser(user)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response.FailOrError(http.StatusInternalServerError, err.Error(), nil))
 		return
@@ -54,7 +55,7 @@ func (h *userHandler) LoginUser(c *gin.Context) {
 
 func (h *userHandler) GetUserById(c *gin.Context) {
 	id := c.Param("id")
-	result, err := h.Repository.GetUserById(h.db, id)
+	result, err := h.Repository.GetUserById(id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response.FailOrError(http.StatusInternalServerError, err.Error(), nil))
 		return

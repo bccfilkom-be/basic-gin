@@ -8,10 +8,12 @@ import (
 	"gorm.io/gorm"
 )
 
-type UserRepository struct{}
+type UserRepository struct{
+	db         *gorm.DB
+}
 
 // Membuat User
-func (r *UserRepository) CreateUser(db *gorm.DB, model model.RegisterUser) (*entity.User, error) {
+func (r *UserRepository) CreateUser( model model.RegisterUser) (*entity.User, error) {
 	// Ingat, sebelum menyimpan data user ke database, sebaiknya lakukan hashing password terlebih dahulu
 	hashPassword, err := crypto.HashValue(model.Password)
 	// Pengecekan error
@@ -25,20 +27,20 @@ func (r *UserRepository) CreateUser(db *gorm.DB, model model.RegisterUser) (*ent
 		Password: hashPassword,
 	}
 	// Menyimpan user ke database
-	result := db.Create(&user)
+	result := r.db.Create(&user)
 	if result.Error != nil {
 		return nil, err
 	}
 	return &user, nil
 }
 
-func (r *UserRepository) LoginUser(db *gorm.DB, model model.LoginUser) (map[string]any, error) {
+func (r *UserRepository) LoginUser( model model.LoginUser) (map[string]any, error) {
 	var user entity.User
 	/*
 		Kita cari terlebih dahulu buat tahu apakah beneran user ada di database atau tidak
 		berdasarkan username user
 	*/
-	result := db.Where("username = ?", model.Username).Take(&user)
+	result := r.db.Where("username = ?", model.Username).Take(&user)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -61,9 +63,9 @@ func (r *UserRepository) LoginUser(db *gorm.DB, model model.LoginUser) (map[stri
 	return res, nil
 }
 
-func (r *UserRepository) GetUserById(db *gorm.DB, id string) (*entity.User, error) {
+func (r *UserRepository) GetUserById( id string) (*entity.User, error) {
 	var user entity.User
-	result := db.Where("id = ?", id).Take(&user)
+	result := r.db.Where("id = ?", id).Take(&user)
 	if result.Error != nil {
 		return nil, result.Error
 	}
