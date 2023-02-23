@@ -26,12 +26,7 @@ func (h *postHandler) CreatePost(c *gin.Context) {
 	// bind incoming http request
 	request := model.CreatePostRequest{}
 	if err := c.ShouldBindJSON(&request); err != nil {
-		code := http.StatusUnprocessableEntity
-		c.JSON(code, response.FailOrError(
-			code, "Create post failed", gin.H{
-				"error": err.Error(),
-			},
-		))
+		response.FailOrError(c, http.StatusUnprocessableEntity, "Create post failed", err)
 		return
 	}
 
@@ -42,61 +37,42 @@ func (h *postHandler) CreatePost(c *gin.Context) {
 	}
 	err := h.Repository.CreatePost(&post)
 	if err != nil {
-		code := http.StatusInternalServerError
-		c.JSON(code, response.FailOrError(code, "Create post failed", nil))
+		response.FailOrError(c, http.StatusInternalServerError, "Create post failed", err)
 		return
 	}
 
 	//success response
-	c.JSON(http.StatusCreated, response.Success(
-		"Post creation succeeded",
-		request,
-	))
+	response.Success(c, http.StatusCreated, "Post creation succeeded",request)
 }
 
 func (h *postHandler) GetPostByID(c *gin.Context) {
 	// binding param to request model
 	request := model.GetPostByIDRequest{}
 	if err := c.ShouldBindUri(&request); err != nil {
-		code := http.StatusBadRequest
-		c.JSON(code, response.FailOrError(
-			code, "Get post failed", gin.H{
-				"error": err.Error(),
-			},
-		))
+		response.FailOrError(c, http.StatusBadRequest, "Get post failed", err)
 		return
 	}
 
 	// find post
 	post, err := h.Repository.GetPostByID(request.ID)
 	if err != nil {
-		code := http.StatusNotFound
-		c.JSON(code, response.FailOrError(
-			code, "Post not found", gin.H{
-				"error": "404 not found",
-			},
-		))
+		response.FailOrError(c, http.StatusNotFound, "Post not found", err)
 		return
 	}
 
 	//success
-	c.JSON(http.StatusOK, response.Success("Post found", post))
+	response.Success(c, http.StatusOK, "Post found", post)
 }
 
 func (h *postHandler) GetAllPost(c *gin.Context) {
 	posts, err := h.Repository.GetAllPost(h.DB)
 
 	if err != nil {
-		code := http.StatusNotFound
-		c.JSON(code, response.FailOrError(
-			code, "Posts not found", gin.H{
-				"error": "404 not found",
-			},
-		))
+		response.FailOrError(c, http.StatusNotFound, "Posts not found", err)
 		return
 	}
 
-	c.JSON(http.StatusOK, response.Success("Posts Found", posts))
+	response.Success(c, http.StatusOK, "Posts Found", posts)
 }
 
 func (h *postHandler) UpdatePostByID(c *gin.Context) {
@@ -105,12 +81,7 @@ func (h *postHandler) UpdatePostByID(c *gin.Context) {
 	var request model.UpdatePostRequest
 
 	if err := c.ShouldBindJSON(&request); err != nil {
-		code := http.StatusBadRequest
-		c.JSON(code, response.FailOrError(
-			code, "body is invalid ..", gin.H{
-				"error": err.Error(),
-			},
-		))
+		response.FailOrError(c, http.StatusBadRequest, "body is invalid ..", err)
 		return
 	}
 
@@ -123,24 +94,18 @@ func (h *postHandler) UpdatePostByID(c *gin.Context) {
 
 	err := h.Repository.UpdatePost(uint(parsedID), &request)
 	if err != nil {
-		code := http.StatusInternalServerError
-		c.JSON(code, response.FailOrError(code, "Update post failed", nil))
+		response.FailOrError(c, http.StatusInternalServerError, "Update post failed", err)
 		return
 	}
 
 	post, err := h.Repository.GetPostByID(uint(parsedID))
 	if err != nil {
-		code := http.StatusNotFound
-		c.JSON(code, response.FailOrError(
-			code, "Post not found", gin.H{
-				"error": "404 not found",
-			},
-		))
+		response.FailOrError(c, http.StatusNotFound, "Post not found", err)
 		return
 	}
 
 	//success
-	c.JSON(http.StatusOK, response.Success("updated post successfully", post))
+	response.Success(c, http.StatusOK, "updated post successfully", post)
 }
 
 func (h *postHandler) DeletePostByID(c *gin.Context) {
@@ -151,10 +116,9 @@ func (h *postHandler) DeletePostByID(c *gin.Context) {
 	err := h.Repository.DeletePost(uint(parsedID))
 
 	if err != nil {
-		code := http.StatusInternalServerError
-		c.JSON(code, response.FailOrError(code, "delete post failed", nil))
+		response.FailOrError(c, http.StatusInternalServerError, "delete post failed", err)
 		return
 	}
 
-	c.JSON(http.StatusOK, response.Success("successfully deleted post", nil))
+	response.Success(c, http.StatusOK, "successfully deleted post", nil)
 }

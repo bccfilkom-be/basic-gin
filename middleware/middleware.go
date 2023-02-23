@@ -2,6 +2,7 @@ package middlware
 
 import (
 	"basic-gin/sdk/response"
+	"errors"
 	"net/http"
 	"os"
 	"strings"
@@ -24,7 +25,8 @@ func JwtMiddleware() gin.HandlerFunc {
 		authorization := c.Request.Header.Get("Authorization")
 		if !strings.HasPrefix(authorization, "Bearer ") {
 			c.Abort()
-			c.JSON(http.StatusForbidden, response.FailOrError(http.StatusForbidden, "wrong header value", nil))
+			msg := "wrong header value"
+			response.FailOrError(c, http.StatusForbidden, msg, errors.New(msg))
 			return
 		}
 		tokenJwt := authorization[7:] // menghilangkan Bearer
@@ -34,20 +36,20 @@ func JwtMiddleware() gin.HandlerFunc {
 		})
 		if err != nil {
 			c.Abort()
-			c.JSON(http.StatusForbidden, response.FailOrError(http.StatusForbidden, err.Error(), nil))
+			response.FailOrError(c, http.StatusForbidden, err.Error(), err)
 			return
 		}
 		// jwtFix adalah bentuk asli token nya
 		jwtFix, ok := validateJwt.Claims.(jwt.MapClaims)
 		if !ok {
 			c.Abort()
-			c.JSON(http.StatusForbidden, response.FailOrError(http.StatusForbidden, "data token jwt tidak valid", nil))
+			response.FailOrError(c, http.StatusForbidden, "data token jwt tidak valid", nil)
 			return
 		}
 		// Token tidak valid
 		if jwtFix.Valid() != nil {
 			c.Abort()
-			c.JSON(http.StatusForbidden, response.FailOrError(http.StatusForbidden, jwtFix.Valid().Error(), nil))
+			response.FailOrError(c, http.StatusForbidden, jwtFix.Valid().Error(), jwtFix.Valid())
 			return
 		} else {
 			// Token valid

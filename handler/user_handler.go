@@ -24,34 +24,28 @@ func (h *userHandler) CreateUser(c *gin.Context) {
 	var user model.RegisterUser
 	err := c.ShouldBindJSON(&user)
 	if err != nil {
-		code := http.StatusBadRequest
-		resp := response.FailOrError(http.StatusBadRequest, err.Error(), nil)
-		c.JSON(code, resp)
+		response.FailOrError(c, http.StatusBadRequest, "bad request", err)
 		return
 	}
 	result, err := h.Repository.CreateUser(user)
 	if err != nil {
-		code := http.StatusBadRequest
-		resp := response.FailOrError(http.StatusInternalServerError, err.Error(), nil)
-		c.JSON(code, resp)
+		response.FailOrError(c, http.StatusInternalServerError, "create user failed", err)
 		return
 	}
-	c.JSON(http.StatusCreated, response.Success("success create user", result))
+	response.Success(c, http.StatusCreated, "success create user", result)
 }
 
 func (h *userHandler) LoginUser(c *gin.Context) {
 	var user model.LoginUser
 	err := c.ShouldBindJSON(&user)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, response.FailOrError(
-			http.StatusBadRequest, "bad request", gin.H{
-			"error" : err.Error(),
-		}))
+		response.FailOrError(c, http.StatusBadRequest, "bad request", err)
 		return
 	}
 	result, err := h.Repository.LoginUser(user)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, response.FailOrError(http.StatusInternalServerError, err.Error(), nil))
+		//TODO: ^INI NGAWUR repository kok kyk service 
+		response.FailOrError(c, http.StatusInternalServerError, err.Error(), nil)
 		return
 	}
 	c.JSON(http.StatusOK, result)
@@ -61,8 +55,8 @@ func (h *userHandler) GetUserById(c *gin.Context) {
 	id := c.Param("id")
 	result, err := h.Repository.GetUserById(id)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, response.FailOrError(http.StatusInternalServerError, err.Error(), nil))
+		response.FailOrError(c, http.StatusInternalServerError, "get user failed", err)
 		return
 	}
-	c.JSON(http.StatusOK, response.Success("success get user", result))
+	response.Success(c, http.StatusOK, "success get user", result)
 }

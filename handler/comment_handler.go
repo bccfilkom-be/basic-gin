@@ -25,12 +25,7 @@ func (h *commentHandler) CreateNewComment(c *gin.Context) {
 	// bind incoming http request
 	var requestComment model.CreateNewComment
 	if err := c.ShouldBindJSON(&requestComment); err != nil {
-		code := http.StatusUnprocessableEntity
-		c.JSON(code, response.FailOrError(
-			code, "format body invalid ", gin.H{
-				"error": err.Error(),
-			},
-		))
+		response.FailOrError(c, http.StatusUnprocessableEntity, "create new comment failed", err)
 		return
 	}
 
@@ -41,15 +36,12 @@ func (h *commentHandler) CreateNewComment(c *gin.Context) {
 	}
 	err := h.Repository.CreateComment(&newComment)
 	if err != nil {
-		code := http.StatusInternalServerError
-		c.JSON(code, response.FailOrError(code, "create comment failed", nil))
+		response.FailOrError(c, http.StatusInternalServerError, "create comment failed", err)
 		return
 	}
 
 	//success response
-	c.JSON(http.StatusCreated, response.Success(
-		"create comment succeeded", newComment,
-	))
+	response.Success(c, http.StatusCreated, "create comment succeeded", newComment)
 }
 
 func (h *commentHandler) GetCommentByID(c *gin.Context) {
@@ -58,26 +50,18 @@ func (h *commentHandler) GetCommentByID(c *gin.Context) {
 	parsedID, err := strconv.ParseUint(id, 10, 64)
 
 	if err != nil {
-		code := http.StatusBadRequest
-		c.JSON(code, response.FailOrError(
-			code, "invalid id params", gin.H{
-				"error": err.Error(),
-			},
-		))
+		response.FailOrError(c, http.StatusBadRequest, "invalid id params", err)
 		return
 	}
 
 	comment, err := h.Repository.GetCommentByID(uint(parsedID))
 
 	if err != nil {
-		code := http.StatusNotFound
-		c.JSON(code, response.FailOrError(code, "comment not found", nil))
+		response.FailOrError(c, http.StatusNotFound, "comment not found", err)
 		return
 	}
 
-	c.JSON(http.StatusOK, response.Success(
-		"comment found", comment,
-	))
+	response.Success(c, http.StatusOK, "comment found", comment)
 }
 
 func (h *commentHandler) GetCommentByTitleQuery(c *gin.Context) {
@@ -86,14 +70,11 @@ func (h *commentHandler) GetCommentByTitleQuery(c *gin.Context) {
 	comments, err := h.Repository.GetCommentByTitleQuery(query)
 
 	if err != nil {
-		code := http.StatusNotFound
-		c.JSON(code, response.FailOrError(code, "comment not found", nil))
+		response.FailOrError(c, http.StatusNotFound, "comment not found", err)
 		return
 	}
 
-	c.JSON(http.StatusOK, response.Success(
-		"comment found", comments,
-	))
+	response.Success(c, http.StatusOK, "comment found", comments)
 }
 
 func (h *commentHandler) UpdateCommentByID(c *gin.Context) {
@@ -102,46 +83,32 @@ func (h *commentHandler) UpdateCommentByID(c *gin.Context) {
 	parsedID, err := strconv.ParseUint(ID, 10, 64)
 
 	if err != nil {
-		code := http.StatusBadRequest
-		c.JSON(code, response.FailOrError(
-			code, "invalid id params", gin.H{
-				"error": err.Error(),
-			},
-		))
+		response.FailOrError(c, http.StatusBadRequest, "invalid id params", err)
 		return
 	}
 
 	var request entity.Comment
 
 	if err := c.ShouldBindJSON(&request); err != nil {
-		code := http.StatusUnprocessableEntity
-		c.JSON(code, response.FailOrError(
-			code, "body is invalid ..", gin.H{
-				"error" : err.Error(),
-			},
-		)) 
+		response.FailOrError(c, http.StatusUnprocessableEntity, "body is invalid ..", err) 
 		return
 	}
 
 	err = h.Repository.UpdateCommentByID(uint(parsedID), &request)
 
 	if err != nil {
-		code := http.StatusInternalServerError
-		c.JSON(code, response.FailOrError(code, "failed to update comment", nil))
+		response.FailOrError(c, http.StatusInternalServerError, "failed to update comment", err)
 		return
 	}
 
 	comment, err := h.Repository.GetCommentByID(uint(parsedID))
 
 	if err != nil {
-		code := http.StatusNotFound
-		c.JSON(code, response.FailOrError(code, "comment not found", nil))
+		response.FailOrError(c, http.StatusNotFound, "comment not found", err)
 		return
 	}
 
-	c.JSON(http.StatusOK, response.Success(
-		"comment updated", comment,
-	))
+	response.Success(c, http.StatusOK, "comment updated", comment)
 }
 
 func (h *commentHandler) DeleteCommentByID(c *gin.Context) {
@@ -150,24 +117,16 @@ func (h *commentHandler) DeleteCommentByID(c *gin.Context) {
 	parsedID, err := strconv.ParseUint(ID, 10, 64)
 
 	if err != nil {
-		code := http.StatusBadRequest
-		c.JSON(code, response.FailOrError(
-			code, "invalid id params", gin.H{
-				"error": err.Error(),
-			},
-		))
+		response.FailOrError(c, http.StatusBadRequest, "invalid id params", err)
 		return
 	}
 
 	err = h.Repository.DeleteCommentByID(uint(parsedID))
 
 	if err != nil {
-		code := http.StatusInternalServerError
-		c.JSON(code, response.FailOrError(code, "failed to delete comment", nil))
+		response.FailOrError(c, http.StatusInternalServerError, "failed to delete comment", err)
 		return
 	}
 
-	c.JSON(http.StatusOK, response.Success(
-		"comment deleted", nil,
-	))
+	response.Success(c, http.StatusOK, "comment deleted", err)
 }

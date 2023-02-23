@@ -1,30 +1,45 @@
 package response
 
-func Success(msg string, data interface{}) map[string]interface{} {
-	return map[string]interface{}{
-		"status":  "success",
-		"message": msg,
-		"data":    data,
-	}
+import "github.com/gin-gonic/gin"
+
+// bentuk response nya terserah lah yang penting konsisten
+
+func Success(c *gin.Context, httpCode int, msg string, data interface{}) {
+	switch httpCode / 100 {
+		case 2:
+			c.JSON(httpCode, map[string]interface{}{
+				"status":  "success",
+				"message": msg,
+				"data":    data,
+			})
+		default:
+			c.JSON(500, map[string]interface{}{
+				"status":  "error",
+				"message": "RESPONSE ERROR",
+			})
+	} 
 }
 
-func FailOrError(httpCode int, msg string, data map[string]interface{}) map[string]interface{} {
+func FailOrError(c *gin.Context, httpCode int, msg string, err error) {
 	switch httpCode / 100 {
-	case 4: //FAIL 4xx
-		return map[string]interface{}{
-			"status":  "fail",
-			"message": msg,
-			"data":    data,
-		}
-	case 5: //ERROR 5xx
-		return map[string]interface{}{
-			"status":  "error",
-			"message": msg,
-		}
-	default:
-		return map[string]interface{}{
-			"status":  "error",
-			"message": "INTERNAL SERVER ERROR",
-		}
+		case 4: //FAIL 4xx
+			c.JSON(httpCode, gin.H{
+				"status":  "fail",
+				"message": msg,
+				"data":  gin.H{
+					"error" : err.Error(),
+				},
+			})
+		case 5: //ERROR 5xx
+			c.JSON(httpCode, gin.H{
+				"status":  "error",
+				"message": msg,
+			})
+			
+		default:
+			c.JSON(500, gin.H{
+				"status":  "error",
+				"message": "RESPONSE ERROR",
+			})
 	}
 }
