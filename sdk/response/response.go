@@ -3,19 +3,25 @@ package response
 import "github.com/gin-gonic/gin"
 
 // bentuk response nya terserah lah yang penting konsisten
+type resp struct {
+	Status string `json:"status"`
+	Message string `json:"message"`
+	Data any `json:"data"`
+}  
 
 func Success(c *gin.Context, httpCode int, msg string, data interface{}) {
 	switch httpCode / 100 {
 		case 2:
-			c.JSON(httpCode, map[string]interface{}{
-				"status":  "success",
-				"message": msg,
-				"data":    data,
+			c.JSON(httpCode, resp{
+				Status: "success",
+				Message: msg,
+				Data: data,
 			})
 		default:
-			c.JSON(500, map[string]interface{}{
-				"status":  "error",
-				"message": "RESPONSE ERROR",
+			c.JSON(500, resp{
+				Status: "error",
+				Message: "RESPONSE ERROR",
+				Data: nil,
 			})
 	} 
 }
@@ -23,23 +29,25 @@ func Success(c *gin.Context, httpCode int, msg string, data interface{}) {
 func FailOrError(c *gin.Context, httpCode int, msg string, err error) {
 	switch httpCode / 100 {
 		case 4: //FAIL 4xx
-			c.JSON(httpCode, gin.H{
-				"status":  "fail",
-				"message": msg,
-				"data":  gin.H{
-					"error" : err.Error(),
+			c.JSON(httpCode, resp{
+				Status: "fail",
+				Message: msg,
+				Data: gin.H{
+					"error" : err,
 				},
 			})
 		case 5: //ERROR 5xx
-			c.JSON(httpCode, gin.H{
-				"status":  "error",
-				"message": msg,
+			c.JSON(httpCode, resp{
+				Status: "error",
+				Message: msg,
+				Data: nil,
 			})
 			
 		default:
-			c.JSON(500, gin.H{
-				"status":  "error",
-				"message": "RESPONSE ERROR",
+			c.JSON(500, resp{
+				Status: "error",
+				Message: "RESPONSE ERROR",
+				Data: nil,
 			})
 	}
 }
