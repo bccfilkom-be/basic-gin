@@ -2,8 +2,6 @@ package repository
 
 import (
 	"basic-gin/entity"
-	"basic-gin/model"
-	"basic-gin/sdk/crypto"
 
 	"gorm.io/gorm"
 )
@@ -16,25 +14,10 @@ func NewUserRepository(db *gorm.DB) UserRepository{
 }
 
 // Membuat User
-func (r *UserRepository) CreateUser( model model.RegisterUser) (*entity.User, error) {
-	// Ingat, sebelum menyimpan data user ke database, sebaiknya lakukan hashing password terlebih dahulu
-	hashPassword, err := crypto.HashValue(model.Password)
-	// Pengecekan error
-	if err != nil {
-		return nil, err
-	}
-	// Membuat user
-	var user entity.User = entity.User{
-		Name:     model.Name,
-		Username: model.Username,
-		Password: hashPassword,
-	}
+func (r *UserRepository) CreateUser(user *entity.User) (error) {
 	// Menyimpan user ke database
-	result := r.db.Create(&user)
-	if result.Error != nil {
-		return nil, err
-	}
-	return &user, nil
+	err := r.db.Create(user).Error
+	return err
 }
 
 func (r *UserRepository) FindByUsername(username string) (entity.User, error){

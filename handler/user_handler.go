@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"basic-gin/entity"
 	"basic-gin/model"
 	"basic-gin/repository"
 	"basic-gin/sdk/crypto"
@@ -21,18 +22,32 @@ func NewUserHandler(repo *repository.UserRepository) userHandler {
 }
 
 func (h *userHandler) CreateUser(c *gin.Context) {
-	var user model.RegisterUser
-	err := c.ShouldBindJSON(&user)
+	var request model.RegisterUser
+	err := c.ShouldBindJSON(&request)
 	if err != nil {
 		response.FailOrError(c, http.StatusBadRequest, "bad request", err)
 		return
 	}
-	result, err := h.Repository.CreateUser(user)
+
+	// Ingat, sebelum menyimpan data user ke database, sebaiknya lakukan hashing password terlebih dahulu
+	hashedPassword, err := crypto.HashValue(request.Password)
+	if err != nil {
+		response.FailOrError(c, http.StatusInternalServerError, "user creation failed", err)
+		return
+	}
+
+	user := entity.User{
+		Name: request.Name,
+		Username: request.Username,
+		Password: hashedPassword,
+	}
+
+	err = h.Repository.CreateUser(&user)
 	if err != nil {
 		response.FailOrError(c, http.StatusInternalServerError, "create user failed", err)
 		return
 	}
-	response.Success(c, http.StatusCreated, "success create user", result)
+	response.Success(c, http.StatusCreated, "success create user", user)
 }
 
 func (h *userHandler) LoginUser(c *gin.Context) {
