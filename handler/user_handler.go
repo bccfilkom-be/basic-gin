@@ -3,7 +3,10 @@ package handler
 import (
 	"basic-gin/model"
 	"basic-gin/repository"
+	"basic-gin/sdk/crypto"
+	sdk_jwt "basic-gin/sdk/jwt"
 	"basic-gin/sdk/response"
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -36,19 +39,38 @@ func (h *userHandler) CreateUser(c *gin.Context) {
 }
 
 func (h *userHandler) LoginUser(c *gin.Context) {
-	var user model.LoginUser
-	err := c.ShouldBindJSON(&user)
+	var request model.LoginUser
+	err := c.ShouldBindJSON(&request)
 	if err != nil {
 		response.FailOrError(c, http.StatusBadRequest, "bad request", err)
 		return
 	}
-	result, err := h.Repository.LoginUser(user)
+
+	// get email
+	user, err := h.Repository.FindByUsername(request.Username)
 	if err != nil {
-		//TODO: ^INI NGAWUR repository kok kyk service 
-		response.FailOrError(c, http.StatusInternalServerError, err.Error(), nil)
+		response.FailOrError(c, http.StatusNotFound, "email not found", err)
 		return
 	}
-	c.JSON(http.StatusOK, result)
+
+	// compare password
+	err = crypto.ValidateHash(request.Password, user.Password)
+	if err != nil {
+		msg := "wrong password"
+		response.FailOrError(c, http.StatusBadRequest, msg, errors.New(msg))
+		return
+	}
+	// create jwt
+	tokenJwt, err := sdk_jwt.GenerateToken(user)
+	if err != nil {
+		response.FailOrError(c, http.StatusInternalServerError, "create token failed", err)
+		return
+	}
+
+	// success response
+	response.Success(c, http.StatusOK, "login success", gin.H{
+		"token" : tokenJwt,
+	})
 }
 
 func (h *userHandler) GetUserById(c *gin.Context) {
