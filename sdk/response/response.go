@@ -33,7 +33,7 @@ func FailOrError(c *gin.Context, httpCode int, msg string, err error) {
 				Status: "fail",
 				Message: msg,
 				Data: gin.H{
-					"error" : err,
+					"error" : err.Error(),
 				},
 			})
 		case 5: //ERROR 5xx
