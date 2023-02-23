@@ -3,6 +3,8 @@ package crypto
 import (
 	"basic-gin/entity"
 	"basic-gin/model"
+	"errors"
+	"fmt"
 	"os"
 	"time"
 
@@ -56,4 +58,28 @@ func GenerateToken(payload entity.User) (string, error) {
 		return "", err
 	}
 	return tokenJwt, nil
+}
+
+func DecodeToken(signedToken string, ptrClaims jwt.Claims, KEY string) (error) {
+
+	token, err := jwt.ParseWithClaims(signedToken, ptrClaims, func(t *jwt.Token) (interface{}, error) {
+		_, ok := t.Method.(*jwt.SigningMethodHMAC) // method used to sign the token 
+		if !ok {
+			// wrong signing method
+			return "", errors.New("wrong signing method")
+		}
+		return []byte(KEY), nil
+	})
+
+	if err != nil {
+		// parse failed
+		return fmt.Errorf("token has been tampered with")
+	}
+
+	if !token.Valid{
+		// token is not valid
+		return fmt.Errorf("invalid token")
+	}
+
+	return nil
 }
