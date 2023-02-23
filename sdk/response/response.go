@@ -2,7 +2,7 @@ package response
 
 import "github.com/gin-gonic/gin"
 
-// bentuk response nya terserah lah yang penting konsisten
+// bentuk response nya terserah lah yang penting konsisten 
 
 func Success(c *gin.Context, httpCode int, msg string, data interface{}) {
 	switch httpCode / 100 {
