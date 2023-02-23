@@ -4,6 +4,7 @@ import (
 	"basic-gin/entity"
 	"basic-gin/model"
 	"basic-gin/sdk/crypto"
+	sdk_jwt "basic-gin/sdk/jwt"
 
 	"gorm.io/gorm"
 )
@@ -50,7 +51,7 @@ func (r *UserRepository) LoginUser( model model.LoginUser) (map[string]any, erro
 		return nil, err
 	}
 	// Karena sama, maka kita bisa generate token Jwt yang membuktikan bahwa user ini beneran dia sendiri
-	tokenJwt, err := crypto.GenerateToken(user)
+	tokenJwt, err := sdk_jwt.GenerateToken(user)
 	if err != nil {
 		return nil, err
 	}
