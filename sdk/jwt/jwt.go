@@ -3,6 +3,7 @@ package crypto
 import (
 	"basic-gin/entity"
 	"os"
+	"time"
 
 	"github.com/golang-jwt/jwt/v4"
 )
@@ -37,11 +38,19 @@ func GenerateToken(payload entity.User) (string, error) {
 		signature -> ini adalah hasil algoritma crypthographic yang ada, biasa HS256
 	*/
 
+	// get jwt expire from env
+	expStr := os.Getenv("JWT_EXP")
+	var exp time.Duration
+	exp, err := time.ParseDuration(expStr)
+	if expStr == "" || err != nil {
+		exp = time.Hour * 1
+	}
+
+
 	tokenJwtSementara := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		// Claims = Payload
-		"id":        payload.ID,
-		"username":  payload.Username,
-		"createdAt": payload.CreatedAt.Unix(),
+		"id": payload.ID,
+		"username": payload.Username,
+		"exp": time.Now().Add(exp).Unix(),
 	})
 
 	// secret_key sama seperti namanya adalah kunci rahasia yang digunakan untuk token jwt kalian.
