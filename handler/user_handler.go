@@ -10,6 +10,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type userHandler struct {
@@ -70,9 +71,21 @@ func (h *userHandler) LoginUser(c *gin.Context) {
 }
 
 func (h *userHandler) GetUserById(c *gin.Context) {
-	id := c.Param("id")
-	result, err := h.Repository.GetUserById(id)
+	// `dto` seharusnya di model yo, tapi ini contoh doang
+	req := struct {
+		ID uint `uri:"id" binding:"required"`
+	}{}
+	err := c.ShouldBindUri(&req)
 	if err != nil {
+		response.FailOrError(c, http.StatusBadRequest, "bad uri", err)
+		return
+	}
+	result, err := h.Repository.GetUserById(req.ID)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			response.FailOrError(c, http.StatusNotFound, "user not found", err)
+			return
+		}
 		response.FailOrError(c, http.StatusInternalServerError, "get user failed", err)
 		return
 	}
