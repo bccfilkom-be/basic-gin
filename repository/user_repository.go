@@ -43,11 +43,11 @@ func (r *UserRepository) FindByUsername(username string) (entity.User, error){
 	return user, err
 }
 
-func (r *UserRepository) GetUserById( id string) (*entity.User, error) {
+func (r *UserRepository) GetUserById(id uint) (entity.User, error) {
 	var user entity.User
-	result := r.db.Where("id = ?", id).Take(&user)
-	if result.Error != nil {
-		return nil, result.Error
+	err := r.db.Where("id = ?", id).Take(&user).Error
+	if err != nil {
+		return entity.User{}, err
 	}
-	return &user, nil
+	return user, nil
 }
