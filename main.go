@@ -48,7 +48,7 @@ func main() {
 	r.POST("/user/register", userHandler.CreateUser)
 	r.POST("/user/login", userHandler.LoginUser)
 	// Untuk menambahkan middleware, tambahkan pada parameter kedua middleware nya, diikuti handler pada parameter ketiga
-	r.GET("/user/:id", middleware.JwtMiddleware(), userHandler.GetUserById)
+	r.GET("/user/:id", userHandler.GetUserById)
 
 	r.POST("/post", middleware.JwtMiddleware(), postHandler.CreatePost)
 	r.GET("/post/:id", postHandler.GetPostByID)
