@@ -2,6 +2,7 @@ package crypto
 
 import (
 	"basic-gin/entity"
+	"basic-gin/model"
 	"os"
 	"time"
 
@@ -47,12 +48,7 @@ func GenerateToken(payload entity.User) (string, error) {
 	}
 
 
-	tokenJwtSementara := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"id": payload.ID,
-		"username": payload.Username,
-		"exp": time.Now().Add(exp).Unix(),
-	})
-
+	tokenJwtSementara := jwt.NewWithClaims(jwt.SigningMethodHS256, model.NewUserClaims(payload.ID, exp))
 	// secret_key sama seperti namanya adalah kunci rahasia yang digunakan untuk token jwt kalian.
 	// secret_key HANYA BOLEH DIKETAHUI SAMA KALIAN SENDIRI dan PASTIKAN TIDAK DIKETAHUI ORANG LAIN!
 	tokenJwt, err := tokenJwtSementara.SignedString([]byte(os.Getenv("secret_key")))
