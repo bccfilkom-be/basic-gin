@@ -11,6 +11,9 @@ import (
 type UserRepository struct{
 	db         *gorm.DB
 }
+func NewUserRepository(db *gorm.DB) UserRepository{
+	return UserRepository{db}
+}
 
 // Membuat User
 func (r *UserRepository) CreateUser( model model.RegisterUser) (*entity.User, error) {

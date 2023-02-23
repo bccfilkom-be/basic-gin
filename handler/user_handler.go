@@ -10,17 +10,13 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 type userHandler struct {
 	Repository repository.UserRepository
 }
-
-func NewUserHandler(db *gorm.DB) *userHandler {
-	return &userHandler{
-		Repository: repository.UserRepository{},
-	}
+func NewUserHandler(repo *repository.UserRepository) userHandler {
+	return userHandler{*repo}
 }
 
 func (h *userHandler) CreateUser(c *gin.Context) {

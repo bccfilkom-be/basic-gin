@@ -10,6 +10,9 @@ import (
 type CommentRepository struct{
 	db         *gorm.DB
 }
+func NewCommentRepository(db *gorm.DB) CommentRepository{
+	return CommentRepository{db}
+}
 
 func (r *CommentRepository) CreateComment(comment *entity.Comment) error {
 	res := r.db.Create(comment)

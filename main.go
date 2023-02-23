@@ -4,6 +4,7 @@ import (
 	"basic-gin/database"
 	"basic-gin/handler"
 	middleware "basic-gin/middleware"
+	"basic-gin/repository"
 	"log"
 	"os"
 
@@ -29,10 +30,14 @@ func main() {
 	// Membuat Gin Engine
 	r := gin.Default()
 
+	postRepo := repository.NewPostRepository(db)
+	commentRepo := repository.NewCommentRepository(db)
+	userRepo := repository.NewUserRepository(db)
+
 	// HANDLERS
-	postHandler := handler.NewPostHandler(db)
-	commentHandler := handler.NewCommentHandler(db)
-	userHandler := handler.NewUserHandler(db)
+	postHandler := handler.NewPostHandler(&postRepo)
+	commentHandler := handler.NewCommentHandler(&commentRepo)
+	userHandler := handler.NewUserHandler(&userRepo)
 
 	// ROUTES
 	r.GET("/helloworld", func(c *gin.Context) {

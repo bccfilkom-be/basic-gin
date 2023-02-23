@@ -9,16 +9,14 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 type commentHandler struct {
-	DB *gorm.DB
 	Repository repository.CommentRepository
 }
 // "Constructor" for postHandler
-func NewCommentHandler(db *gorm.DB) commentHandler{
-	return commentHandler{db, repository.CommentRepository{}}
+func NewCommentHandler(repo *repository.CommentRepository) commentHandler{
+	return commentHandler{*repo}
 }
 
 func (h *commentHandler) CreateNewComment(c *gin.Context) {

@@ -9,17 +9,15 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 type postHandler struct {
-	DB         *gorm.DB
 	Repository repository.PostRepository
 }
 
 // "Constructor" for postHandler
-func NewPostHandler(db *gorm.DB) postHandler {
-	return postHandler{db, repository.PostRepository{}}
+func NewPostHandler(repo *repository.PostRepository) postHandler {
+	return postHandler{*repo}
 }
 
 func (h *postHandler) CreatePost(c *gin.Context) {
@@ -65,7 +63,7 @@ func (h *postHandler) GetPostByID(c *gin.Context) {
 }
 
 func (h *postHandler) GetAllPost(c *gin.Context) {
-	posts, err := h.Repository.GetAllPost(h.DB)
+	posts, err := h.Repository.GetAllPost()
 
 	if err != nil {
 		response.FailOrError(c, http.StatusNotFound, "Posts not found", err)

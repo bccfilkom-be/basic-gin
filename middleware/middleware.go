@@ -53,6 +53,7 @@ func JwtMiddleware() gin.HandlerFunc {
 			return
 		} else {
 			// Token valid
+			c.Set("user", jwtFix)
 			c.Next()
 		}
 	}
