@@ -21,6 +21,9 @@ func NewPostHandler(repo *repository.PostRepository) postHandler {
 }
 
 func (h *postHandler) CreatePost(c *gin.Context) {
+	claimsTemp, _ := c.Get("user")
+	claims := claimsTemp.(model.UserClaims)
+
 	// bind incoming http request
 	request := model.CreatePostRequest{}
 	if err := c.ShouldBindJSON(&request); err != nil {
@@ -30,6 +33,7 @@ func (h *postHandler) CreatePost(c *gin.Context) {
 
 	// create post
 	post := entity.Post{
+		UserID: claims.ID,
 		Title:   request.Title,
 		Content: request.Content,
 	}
