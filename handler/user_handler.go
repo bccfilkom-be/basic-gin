@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"basic-gin/entity"
 	"basic-gin/model"
 	"basic-gin/repository"
 	"basic-gin/sdk/crypto"
@@ -10,6 +11,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type userHandler struct {
@@ -20,18 +22,32 @@ func NewUserHandler(repo *repository.UserRepository) userHandler {
 }
 
 func (h *userHandler) CreateUser(c *gin.Context) {
-	var user model.RegisterUser
-	err := c.ShouldBindJSON(&user)
+	var request model.RegisterUser
+	err := c.ShouldBindJSON(&request)
 	if err != nil {
 		response.FailOrError(c, http.StatusBadRequest, "bad request", err)
 		return
 	}
-	result, err := h.Repository.CreateUser(user)
+
+	// Ingat, sebelum menyimpan data user ke database, sebaiknya lakukan hashing password terlebih dahulu
+	hashedPassword, err := crypto.HashValue(request.Password)
+	if err != nil {
+		response.FailOrError(c, http.StatusInternalServerError, "user creation failed", err)
+		return
+	}
+
+	user := entity.User{
+		Name: request.Name,
+		Username: request.Username,
+		Password: hashedPassword,
+	}
+
+	err = h.Repository.CreateUser(&user)
 	if err != nil {
 		response.FailOrError(c, http.StatusInternalServerError, "create user failed", err)
 		return
 	}
-	response.Success(c, http.StatusCreated, "success create user", result)
+	response.Success(c, http.StatusCreated, "success create user", user)
 }
 
 func (h *userHandler) LoginUser(c *gin.Context) {
@@ -70,9 +86,21 @@ func (h *userHandler) LoginUser(c *gin.Context) {
 }
 
 func (h *userHandler) GetUserById(c *gin.Context) {
-	id := c.Param("id")
-	result, err := h.Repository.GetUserById(id)
+	// `dto` seharusnya di model yo, tapi ini contoh doang
+	req := struct {
+		ID uint `uri:"id" binding:"required"`
+	}{}
+	err := c.ShouldBindUri(&req)
 	if err != nil {
+		response.FailOrError(c, http.StatusBadRequest, "bad uri", err)
+		return
+	}
+	result, err := h.Repository.GetUserById(req.ID)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			response.FailOrError(c, http.StatusNotFound, "user not found", err)
+			return
+		}
 		response.FailOrError(c, http.StatusInternalServerError, "get user failed", err)
 		return
 	}

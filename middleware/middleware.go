@@ -1,6 +1,8 @@
 package middlware
 
 import (
+	"basic-gin/model"
+	sdk_jwt "basic-gin/sdk/jwt"
 	"basic-gin/sdk/response"
 	"errors"
 	"net/http"
@@ -8,7 +10,6 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt/v4"
 )
 
 /*
@@ -20,7 +21,6 @@ Tujuannya untuk memperbolehkan atau melarang request mengakses endpoint yang pri
 */
 func JwtMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-
 		// Umumnya, Jwt Token dikirim lewat Header Http 'Authorization' dengan nilai Bearer jwt_token
 		authorization := c.Request.Header.Get("Authorization")
 		if !strings.HasPrefix(authorization, "Bearer ") {
@@ -30,31 +30,13 @@ func JwtMiddleware() gin.HandlerFunc {
 			return
 		}
 		tokenJwt := authorization[7:] // menghilangkan Bearer
-		// validate jwt adalah token yang sudah divalidasi
-		validateJwt, err := jwt.Parse(tokenJwt, func(t *jwt.Token) (interface{}, error) {
-			return []byte(os.Getenv("secret_key")), nil
-		})
-		if err != nil {
+		claims := model.UserClaims{} // user claims yg sudah didefinisikan dari model
+		jwtKey := os.Getenv("secret_key")
+		if err := sdk_jwt.DecodeToken(tokenJwt, &claims, jwtKey); err != nil {
 			c.Abort()
-			response.FailOrError(c, http.StatusForbidden, err.Error(), err)
+			response.FailOrError(c, http.StatusUnauthorized, "unauthorized", err)
 			return
 		}
-		// jwtFix adalah bentuk asli token nya
-		jwtFix, ok := validateJwt.Claims.(jwt.MapClaims)
-		if !ok {
-			c.Abort()
-			response.FailOrError(c, http.StatusForbidden, "data token jwt tidak valid", nil)
-			return
-		}
-		// Token tidak valid
-		if jwtFix.Valid() != nil {
-			c.Abort()
-			response.FailOrError(c, http.StatusForbidden, jwtFix.Valid().Error(), jwtFix.Valid())
-			return
-		} else {
-			// Token valid
-			c.Set("user", jwtFix)
-			c.Next()
-		}
+		c.Set("user", claims)
 	}
 }
